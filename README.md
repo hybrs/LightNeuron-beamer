@@ -1,5 +1,4 @@
-# TURLA
-# LIGHTNEURON
+# Turla <br> LightNeuron
 Beamer [presentation](./main.pdf) on Turla LightNeuron for ICT Risk Assessment Course @ MD CS Unipi
 
 Turla, also known as Snake, is one of oldest, still-active cyberespionage groups, with more than a decade
