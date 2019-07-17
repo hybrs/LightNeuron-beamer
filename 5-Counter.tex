@@ -1,9 +1,9 @@
 \section{Countermeasures}
 
 \begin{frame}[fragile]{Countermeasures i}
-The cleaning of LightNeuron is not an easy task. \textbf{Simply removing the two malicious files will break
+    \begin{itemize}
+        \item The cleaning of LightNeuron is not an easy task. \textbf{Simply removing the two malicious files will break
 Microsoft Exchange}, preventing everybody in the organization from sending and receiving emails.
-        \begin{itemize}
         \item Before actually removing the files, the malicious Transport Agent should be disabled
         \item open \texttt{<ExchangeInstallFolder>/TransportRoles/Agents/agents.config} and check every DLL signature.
         \item disable the malicious Transport Agents, and after that it is possible to safely remove the infected files.
