@@ -1,6 +1,29 @@
 \section{Countermeasures}
 
-\begin{frame}
-\frametitle{Countermeasures}
-    some IoCs are...
+\begin{frame}[fragile]{Countermeasures i}
+The cleaning of LightNeuron is not an easy task. \textbf{Simply removing the two malicious files will break
+Microsoft Exchange}, preventing everybody in the organization from sending and receiving emails.
+        \begin{itemize}
+        \item Before actually removing the files, the malicious Transport Agent should be disabled
+        \item open \texttt{<ExchangeInstallFolder>/TransportRoles/Agents/agents.config} and check every DLL signature.
+        \item disable the malicious Transport Agents, and after that it is possible to safely remove the infected files.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Countermeasures ii}
+Given that attackers have gained administrative privileges on the Exchange server, there are no bulletproof
+        mitigations against this threat; however there are some recommendations worth to mention:
+    \begin{itemize}
+        \item Use dedicated accounts for the administration of Exchange servers with strong, unique passwords
+        and, if possible, 2FA.
+        \item Monitor closely the usage of these accounts (DLL uses a lot of log files)
+        \item Restrict PowerShell execution
+        \item Regulary check all the installed Transport Agents
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Microsoft’s View}
+    \emph{``an attacker would need to have administrative access on an Exchange server as a member of the Exchange
+     Administrator group in an organization’s Active Directory.  Exchange Administrator accounts are tightly controlled,
+      and membership cannot be obtained by persuading a victim to click through a security warning or elevation request.''} \cite{Petri}
 \end{frame}

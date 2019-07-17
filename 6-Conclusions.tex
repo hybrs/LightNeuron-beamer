@@ -1,6 +1,13 @@
 \section{Conclusions}
 
-\begin{frame}
-\frametitle{Conclusions}
-    very dangerous rootkit with specific and high profile targets
+\begin{frame}[fragile]{Conclusions}
+    \begin{itemize}
+        \item LightNeuron is another example that Turla operators
+        have a large set of sophisticated, custom malware at their disposal
+        \item This is the first time a malicious actor has leveraged a Microsoft Exchange Transport
+        Agent to enable persistence on a mail server
+        \item This technique is very interesting as it allows them to receive
+        commands and exfiltrate data without any filtering.
+        \item Probably not many servers have been infected in this manner, but it’s certainly wise to review Exchange server configurations to look for any unexplained transport agent.
+    \end{itemize}
 \end{frame}

@@ -41,7 +41,7 @@
         \item[2.] \textbf{Execution}: PowerShell script to install Lightneuron components
         \item[3a.] \textbf{Collection}: Automated Collection of both emails and files
         \item[3b.] \textbf{Command \& Control}: email communication using cryptography and steganography
-        \item[4.] \textbf{Exfiltration}: Automated and Encrypted exfiltration via C\&C interface with optional night scheduling
+        \item[3c.] \textbf{Exfiltration}: Automated and Encrypted exfiltration via C\&C interface with optional night scheduling
     \end{enumerate}
 \end{frame}
 
@@ -92,7 +92,7 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{Configuration File Rule System}
+\begin{frame}[fragile]{Configuration File Rule System i}
     \begin{itemize}
         \item The second configuration file contains several class nodes, each one corresponding to a different function 
         (aka handler) implemented in the DLL. 
@@ -104,10 +104,119 @@
     \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Configuration File Rule System condt}
+\begin{frame}[fragile]{Configuration File Rule System ii}
     \begin{itemize}
         \item These rules are applied to every email processed by the DLL
         \item This configuration is highly flexible
         \item There are eleven different handlers implemented in the DLL 
     \end{itemize}
+    \begin{figure}
+        \includegraphics[height=5cm, width=9cm]{figures/handlers.PNG}
+        \caption{Description of the handlers implemented in the DLL}
+    \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Collection i}
+    \begin{itemize}
+        \item Since these rules are applied to every email passing through the transport pipeline, the behavioral characteristics
+        of LightNeuron reside in this second configuration file.
+        \item MITRE Techniques:
+            \begin{itemize}
+                \item[] \textbf{Automated Collection} T1119: depending on the configuration, LightNeuron
+                can collect the files in a specific path
+                \item[] \textbf{Email Collection} T1114: LightNeuron collects all the emails matching 
+                one rules specified in its configuration.
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Collection ii}
+    \begin{itemize}
+        \item  In every handler definition, the email is in the form
+        of a \emph{linked-list} with the different fields parsed (From, To, body, etc.)
+        \item The handler can modify this linked-list
+        and will return a code corresponding to the action it performed
+        \item Then, the Transport Agent interprets this return code to know if it should modify the email, block
+        it or execute .NET assembly code
+    \end{itemize}
+    \begin{figure}
+        \includegraphics[width=6cm]{figures/return.PNG}
+        \caption{Handler return codes and their descriptions}
+    \end{figure}
+\end{frame}
+
+
+\begin{frame}[fragile]{Command \& Control and Exfiltration: the backdoor}
+    \begin{itemize}
+        \item The command handler is actually the implementation of a backdoor controlled by email 
+        \emph{(T1071 Standard Application Layer Protocol)}.
+        \item It has the following properties:
+        \begin{itemize}
+            \item[-] Depending on the rules, the commands are hidden in a PDF or a JPG attachment. 
+            \item[-] It uses steganography to hide data in PDF documents or JPG pictures. \emph{(T1001 Data Obfuscation)}
+        \end{itemize}
+        \item One decrypted, the attachment is passed to the routine that reads the blob of data containing the command, aka \emph{container}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Command \& Control and Exfiltration: containers i}
+    \begin{itemize}
+        \item The first four bytes
+        are the size of the container and the following bytes are encrypted with AES-256 with a key hardcoded
+        in the binary.
+        \item Once decrypted, we see the different fields used to store information about the commands to be executed.
+        \begin{itemize}
+            \item[-] At offset 0x08, the email address to which the result of the command is sent.
+            \item[-] At offset 0x1D, the \emph{instruction code}.
+            \item[-] At offset 0x25, the first argument of the function that will be called.
+        \end{itemize}
+    \end{itemize}
+    \begin{figure}
+        \includegraphics[height=1.6cm, width=9cm]{figures/encr_dump.PNG}
+    \end{figure}
+    \begin{figure}
+        \includegraphics[height=1.6cm, width=9cm]{figures/decr_dump.PNG}
+        \caption{Hexadecimal dump of the encrypted (top) decrypted (bottom) container.}
+    \end{figure}
+\end{frame}
+
+
+\begin{frame}[fragile]{Command \& Control and Exfiltration: containers ii}
+    \begin{itemize}
+        \item When processing a container, the backdoor writes the \texttt{CmdId} value to a log file (anti-replay mechanism)
+        \item Finally, the command output is encrypted with AES and a PDF document or a JPG image
+        \item An email is then created.
+    \end{itemize}
+
+    \begin{figure}
+        \centering
+        \subfloat[List of instruction codes\label{fig:a}]{\includegraphics[height=3cm,width=5cm]{figures/istructions.PNG}}\qquad
+        \subfloat[Structure of the command container (C-like syntax)\label{fig:b}]{\includegraphics[height=3cm,width=5cm]{figures/command_container.PNG}}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}[fragile]{Command \& Control and Exfiltration: sending the email}
+    \begin{itemize}
+        \item To send the email, it simply drops it in the folder \\\texttt{<ExchangeInstallFolder>/TransportRoles/PickUp/}
+        and the filename starts with \texttt{msg} followed by the result of the \texttt{GetTickCount} function. According to the
+        Microsoft documentation \cite{MicroSend}
+        \item Moreover exchange does not perform any secutity check on the email sent via this folder
+        \item Thus, security solutions will not see the data exfiltrated through LightNeuron, which makes this malware
+        very \textbf{stealthy}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Command \& Control and Exfiltration: \\Automated and Scheduled Exfiltration}
+    \begin{itemize}
+        \item If the configuration parameters \texttt{SEND\_TIME} and \texttt{SEND\_AT\_NIGHT} are set, 
+        a thread launched by the DLL main function will loop indefinitely.
+        \item The exfiltration function loops over the files that match the \texttt{SEND\_FILE} specification
+        \item It is possible to include wildcards in the filename specification to match several different files 
+        \item Then, for each file, it will send an email containing the file in either a JPG or a PDF attachment
+    \end{itemize}
+    \begin{figure}
+        \includegraphics[height=2.3cm, width=9cm]{figures/exfiltration.PNG}
+        \caption{Exfiltration MITRE techniquesd used by LightNeuron}
+    \end{figure}
 \end{frame}
