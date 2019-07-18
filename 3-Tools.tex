@@ -15,6 +15,7 @@
         \item a \emph{Transport Agent} that can process and modify all email messages going through the mail server 
         \item a companion 64-bit \emph{Dynamic Link Library (DLL)} containing most of the malicious code.
     \end{itemize}
+    The full list of LightNeuron components' hashes and paths is available in the ESET report \cite{Turla19}
 \end{frame}
 
 
@@ -58,7 +59,7 @@
 \begin{frame}[fragile]{Execution}
     \begin{itemize}
         \item PowerShell T1086: a powershell script is executed
-        \item The malicious Transport Agent is a 32-bit Windows DLL developed in .NET
+        \item The malicious Transport Agent, namely \texttt{Microsoft.Exchange.Security.Interop.dll}, is a 32-bit Windows DLL developed in .NET (SHA-1 \texttt{3C851E239FBF67A03E0DAE8F63EEE702B330DB6C})
         \item The attackers drop this executable in the Exchange folder located in the 
         Program Files folder.  
     \end{itemize}
@@ -75,7 +76,7 @@
 
 \begin{frame}[fragile]{Execution: Companion Dynamic Link Libray}
     \begin{itemize}
-        \item The companion DLL is a 64-bit Windows DLL developed in C
+        \item The companion DLL is a 64-bit Windows DLL, namely \texttt{exrwdb.dll}, developed in C \\(SHA-1 \texttt{76EE1802A6C920CBEB3A1053A4EC03C71B7E46F8})
         \item When the Transport Agent loads the DLL, 
         the DLL’s main function performs various initialization tasks.
         \item After initail decription operations, it decrypts 
@@ -111,7 +112,7 @@
         \item There are eleven different handlers implemented in the DLL 
     \end{itemize}
     \begin{figure}
-        \includegraphics[height=5cm, width=9cm]{figures/handlers.PNG}
+        \includegraphics[height=5cm, width=9cm]{figures/handlers.png}
         \caption{Description of the handlers implemented in the DLL}
     \end{figure}
 \end{frame}
@@ -149,11 +150,12 @@
 \begin{frame}[fragile]{Command \& Control and Exfiltration: the backdoor}
     \begin{itemize}
         \item The command handler is actually the implementation of a backdoor controlled by email 
-        \emph{(T1071 Standard Application Layer Protocol)}.
+        \emph{(T1071 Standard Application Layer Protocol)}
         \item It has the following properties:
         \begin{itemize}
             \item[-] Depending on the rules, the commands are hidden in a PDF or a JPG attachment. 
             \item[-] It uses steganography to hide data in PDF documents or JPG pictures. \emph{(T1001 Data Obfuscation)}
+            \item[-] The email is blocked so it will not be delivered to the final recipient 
         \end{itemize}
         \item One decrypted, the attachment is passed to the routine that reads the blob of data containing the command, aka \emph{container}
     \end{itemize}
