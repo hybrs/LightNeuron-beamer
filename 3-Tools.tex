@@ -22,7 +22,7 @@
 \begin{frame}[fragile]{Turla modus operandi}
     A tipical Turla attack chain involves:
     \begin{enumerate}
-        \item \textbf{Initial Reconnissance}, usually a basic first-stage malware or a more powerful one if they deem the victim interesting (Metasploit, Carbon or Gazer). Very specific targets
+        \item \textbf{Initial Reconnaissance}, usually a basic first-stage malware or a more powerful one if they deem the victim interesting (Metasploit, Carbon or Gazer). Very specific targets
         \item \textbf{Credential Gathering}, they move laterally on the network to collect accounts, using stealthy communications and periodically creating new accounts for persistence
         \item \textbf{Exfiltration}, using an HTTP/email C\&C channel and SATCOM IP addresses to obfuscate the traffic content and destination. 
     \end{enumerate}
@@ -59,7 +59,7 @@
 \begin{frame}[fragile]{Execution}
     \begin{itemize}
         \item PowerShell T1086: a powershell script is executed
-        \item The malicious Transport Agent, namely \texttt{Microsoft.Exchange.Security.Interop.dll}, is a 32-bit Windows DLL developed in .NET (SHA-1 \texttt{3C851E239FBF67A03E0DAE8F63EEE702B330DB6C})
+        \item The malicious Transport Agent, namely \texttt{Microsoft.Exchange.Security.Interop.dll}, is a 32-bit Windows DLL developed in .NET \\(SHA-1 3C851E239FBF67A03E0DAE8F63EEE702B330DB6C)
         \item The attackers drop this executable in the Exchange folder located in the 
         Program Files folder.  
     \end{itemize}
@@ -76,7 +76,7 @@
 
 \begin{frame}[fragile]{Execution: Companion Dynamic Link Libray}
     \begin{itemize}
-        \item The companion DLL is a 64-bit Windows DLL, namely \texttt{exrwdb.dll}, developed in C \\(SHA-1 \texttt{76EE1802A6C920CBEB3A1053A4EC03C71B7E46F8})
+        \item The companion DLL is a 64-bit Windows DLL, namely \texttt{exrwdb.dll}, developed in C \\(SHA-1 76EE1802A6C920CBEB3A1053A4EC03C71B7E46F8)
         \item When the Transport Agent loads the DLL, 
         the DLL’s main function performs various initialization tasks.
         \item After initail decription operations, it decrypts 
@@ -87,7 +87,13 @@
 
 \begin{frame}[fragile]{The Configuration Files}
     \begin{itemize}
-        \item The configuration file \texttt{winmail.dat} contains various parameters
+        \item The configuration file \texttt{winmail.dat} contains various parameters:
+            \begin{itemize}
+                \item decryption keys
+                \item exfiltration options
+                \item email credential and settings
+                \item logging options
+            \end{itemize}
         \item An interesting one is \texttt{CONFIG\_FILE\_NAME}
         \item Once decrypted, this second configuration file contains the rules used to process the emails.
     \end{itemize}
@@ -186,7 +192,7 @@
 \begin{frame}[fragile]{Command \& Control and Exfiltration: containers ii}
     \begin{itemize}
         \item When processing a container, the backdoor writes the \texttt{CmdId} value to a log file (anti-replay mechanism)
-        \item Finally, the command output is encrypted with AES and a PDF document or a JPG image
+        \item Finally, the command output is encrypted with AES and steganography in a PDF document or a JPG image
         \item An email is then created.
     \end{itemize}
 
